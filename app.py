@@ -1,7 +1,9 @@
 import streamlit as st
 import requests
 
-API_URL = "http://localhost:8000"  # Replace with your deployed FastAPI backend URL on Render.com
+API_URL = "https://lead-scoring-mlops.onrender.com"
+
+  # Replace with your deployed FastAPI backend URL on Render.com
 
 st.set_page_config(page_title="Lead Scoring System", layout="wide")
 st.title("🎯 AI-Powered Lead Scoring System")
