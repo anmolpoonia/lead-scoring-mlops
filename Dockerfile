@@ -11,6 +11,6 @@ COPY . .
 # Generate data and train model at build time (optional but convenient for demo)
 RUN python generate_data.py && python train_model.py
 
-EXPOSE 8000
+EXPOSE 8080
 
 CMD ["streamlit", "run", "app.py", "--server.port=8080", "--server.address=0.0.0.0"]
