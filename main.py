@@ -46,25 +46,31 @@ def health():
 
 @app.post("/score", response_model=LeadScoreResponse)
 def score_lead(lead: LeadData):
-    if model is None or prep is None:
-        raise HTTPException(status_code=500, detail="Model or preprocessor not loaded")
+    try:
+        if model is None or prep is None:
+            raise HTTPException(status_code=500, detail="Model or preprocessor not loaded")
 
-    data = lead.dict()
-    x = prep.preprocess_single_lead(data)
-    initial_prob = model.predict_proba([x])[0][1]
-    reranked_score = prep.apply_reranker_adjustment(initial_prob, lead.comments)
-    
-    impact_delta = reranked_score - initial_prob * 100
-    if impact_delta > 0:
-        impact = f"Positive (+{impact_delta:.1f})"
-    elif impact_delta < 0:
-        impact = f"Negative ({impact_delta:.1f})"
-    else:
-        impact = "No impact (0)"
+        data = lead.dict()
+        x = prep.preprocess_single_lead(data)
+        initial_prob = model.predict_proba([x])[0][1]
+        reranked_score = prep.apply_reranker_adjustment(initial_prob, lead.comments)
+        
+        impact_delta = reranked_score - initial_prob * 100
+        if impact_delta > 0:
+            impact = f"Positive (+{impact_delta:.1f})"
+        elif impact_delta < 0:
+            impact = f"Negative ({impact_delta:.1f})"
+        else:
+            impact = "No impact (0)"
 
-    return LeadScoreResponse(
-        email=lead.email,
-        initial_score=round(initial_prob * 100, 2),
-        reranked_score=round(reranked_score, 2),
-        comment_impact=impact
-    )
+        return LeadScoreResponse(
+            email=lead.email,
+            initial_score=round(initial_prob * 100, 2),
+            reranked_score=round(reranked_score, 2),
+            comment_impact=impact
+        )
+    except Exception as e:
+        import traceback
+        print("Error in /score:", e)
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal error")
